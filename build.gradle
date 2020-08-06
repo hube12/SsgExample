@@ -1,0 +1,94 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+defaultTasks 'clean', 'downloadEyes', 'run'
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://jitpack.io"
+    }
+}
+
+dependencies {
+    implementation('com.github.KaptainWutax:SeedUtils:-SNAPSHOT') {
+        transitive = false;
+    }
+
+    implementation('com.github.KaptainWutax:LattiCG:1339155a2eff535c9dc89736f28c933689023f14') {
+        transitive = false;
+    }
+
+    implementation('com.github.KaptainWutax:BiomeUtils:94098e9d2bd8bc4f1134d4b79dfa82d70ef90979') {
+        transitive = false;
+    }
+
+    implementation('com.github.KaptainWutax:FeatureUtils:67098281211343ed9a0c5216e021c63db54f3ba2') {
+        transitive = false;
+    }
+
+    implementation('com.github.mjtb49:ChunkRandomReversal:e66e286f4bcc5f652ba53f61482fc7dca8ef7d49') {
+        transitive = false;
+    }
+}
+task downloadEyes(type: Copy) {
+    def resFolder = "src/main/resources/SsgExample/"
+    def f = new File(project.relativeProjectPath(resFolder + "all12eyes1.16.zip"))
+    mkdir(resFolder)
+    if (!f.exists()) {
+        print("Downloading file, please wait")
+        new URL('https://github.com/hube12/SSGOutput/releases/download/1.0/all12eyes1.16.zip').withInputStream { i -> f.withOutputStream { it << i } }
+    }
+    from zipTree(f)
+    into resFolder
+
+
+}
+application {
+    mainClassName = "SsgExample.SSG"
+}
+
+compileJava {
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+}
+
+test {
+    useJUnitPlatform {
+        includeEngines("junit-jupiter")
+        maxHeapSize = "1G"
+    }
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+        outputs.upToDateWhen { false }
+        showStandardStreams = true
+        showExceptions true
+        showCauses true
+        showStackTraces true
+    }
+}
+
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes(
+                "Implementation-Title": project.name,
+                "Implementation-Version": project.version,
+                "Main-Class": project.getProperty("mainClassName")
+        )
+    }
+    outputs.upToDateWhen { false }
+    project.archivesBaseName = 'SSG'
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    with jar
+}
