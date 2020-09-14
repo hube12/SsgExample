@@ -18,7 +18,7 @@ public class SSG {
         private final int spawnX;
         private final int spawnZ;
 
-        public Data(long seed, int posX, int posZ, int spawnX, int spawnZ,double distanceToSpawn) {
+        public Data(long seed, int spawnX, int spawnZ, int posX, int posZ, double distanceToSpawn) {
             this.posX = posX;
             this.posZ = posZ;
             this.seed = seed;
@@ -30,23 +30,22 @@ public class SSG {
         public double getDistanceToSpawn() {
             return distanceToSpawn;
         }
+
         public int getPosX() {
             return posX;
         }
+
         public int getPosZ() {
             return posZ;
         }
+
         public long getSeed() {
             return seed;
         }
 
-        public int getSpawnX() {
-            return spawnX;
-        }
+        public int getSpawnX() { return spawnX; }
 
-        public int getSpawnZ() {
-            return spawnZ;
-        }
+        public int getSpawnZ() { return spawnZ; }
 
         @Override
         public String toString() {
@@ -61,14 +60,14 @@ public class SSG {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static List<Data> readData() throws IOException {
         List<Data> seeds = new ArrayList<>();
         InputStream in = SSG.class.getResourceAsStream("all_12_eyes_sorted_ring_1_first.txt");
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         reader.readLine(); // skip header
         for (Object line : reader.lines().toArray()) {
             String[] lines = ((String) line).trim().split(Pattern.quote(","));
-            // -6912834668082326109,240,-244,656,-1020,882
+            // world seed,spawn x,spawn z,portal x,portal z,portal distance
             seeds.add(new Data(Long.parseLong(lines[0]),
                     Integer.parseInt(lines[1]),
                     Integer.parseInt(lines[2]),
@@ -76,6 +75,11 @@ public class SSG {
                     Integer.parseInt(lines[4]),
                     Double.parseDouble(lines[5])));
         }
+        return seeds;
+    }
+
+    public static void main(String[] args) throws IOException {
+        List<Data> seeds = readData();
         seeds.sort(Comparator.comparingDouble(Data::getDistanceToSpawn));
         for (int i = 0; i < 10000; i++) {
             System.out.println(seeds.get(i));
