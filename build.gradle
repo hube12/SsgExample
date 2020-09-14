@@ -18,12 +18,9 @@ repositories {
 }
 
 dependencies {
-    implementation('com.github.KaptainWutax:SEED:-SNAPSHOT') {
-        transitive = false;
-    }
-
-
+    implementation('com.github.KaptainWutax:SEED:-SNAPSHOT')
 }
+
 task downloadEyes(type: Copy) {
     def resFolder = "src/main/resources/SsgExample/"
     def f = new File(project.relativeProjectPath(resFolder + "all_12_eyes_sorted_ring_1_first.zip"))
