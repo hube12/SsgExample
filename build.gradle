@@ -33,9 +33,13 @@ task downloadEyes(type: Copy) {
         new URL('https://github.com/hube12/SSGOutput/releases/download/1.1/all_12_eyes_sorted_ring_1_first.zip').withInputStream { i -> f.withOutputStream { it << i } }
         println("Downloaded file, now extracting")
     }
-    from zipTree(f)
-    into resFolder
-    println("Extracting done")
+    def txt = new File(project.relativeProjectPath(resFolder + "all_12_eyes_sorted_ring_1_first.txt"))
+    if (!txt.exists()){
+        from zipTree(f)
+        into resFolder
+        println("Extracting done")
+    }
+
 
 }
 application {
@@ -44,6 +48,7 @@ application {
 
 compileJava {
     options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    dependsOn(downloadEyes)
 }
 
 test {
