@@ -1,1 +1,4 @@
-SsgExample
+# SsgExample
+
+
+Just run ./gradlew run !
