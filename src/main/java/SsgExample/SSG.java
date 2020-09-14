@@ -1,6 +1,7 @@
 package SsgExample;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -13,17 +14,21 @@ public class SSG {
         private final int posX;
         private final int posZ;
         private final long seed;
-        private final double distance;
+        private final double distanceToSpawn;
+        private final int spawnX;
+        private final int spawnZ;
 
-        public Data(long seed, int posX, int posZ) {
+        public Data(long seed, int posX, int posZ, int spawnX, int spawnZ,double distanceToSpawn) {
             this.posX = posX;
             this.posZ = posZ;
             this.seed = seed;
-            this.distance = posX * posX + posZ * posZ;
+            this.spawnX = spawnX;
+            this.spawnZ = spawnZ;
+            this.distanceToSpawn = distanceToSpawn;
         }
 
-        public double getDistance() {
-            return distance;
+        public double getDistanceToSpawn() {
+            return distanceToSpawn;
         }
         public int getPosX() {
             return posX;
@@ -35,27 +40,43 @@ public class SSG {
             return seed;
         }
 
+        public int getSpawnX() {
+            return spawnX;
+        }
+
+        public int getSpawnZ() {
+            return spawnZ;
+        }
+
         @Override
         public String toString() {
-            return "/tp @p " + posX + " ~ " + posZ +
-                    " , seed: " + seed +
-                    " , distance: " + distance;
+            return "Data{" +
+                    "posX=" + posX +
+                    ", posZ=" + posZ +
+                    ", seed=" + seed +
+                    ", distance to spawn=" + distanceToSpawn +
+                    ", spawnX=" + spawnX +
+                    ", spawnZ=" + spawnZ +
+                    '}';
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         List<Data> seeds = new ArrayList<>();
-        InputStream in = SSG.class.getResourceAsStream("all12eyes1.16.txt");
+        InputStream in = SSG.class.getResourceAsStream("all_12_eyes_sorted_ring_1_first.txt");
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        reader.readLine(); // skip header
         for (Object line : reader.lines().toArray()) {
-            String[] lines = ((String) line).trim().split(Pattern.quote(" "));
-            // World seed 8705982457764242402 /tp -308 ~ -2346
-            seeds.add(new Data(Long.parseLong(lines[2]), Integer.parseInt(lines[4]), Integer.parseInt(lines[6])));
+            String[] lines = ((String) line).trim().split(Pattern.quote(","));
+            // -6912834668082326109,240,-244,656,-1020,882
+            seeds.add(new Data(Long.parseLong(lines[0]),
+                    Integer.parseInt(lines[1]),
+                    Integer.parseInt(lines[2]),
+                    Integer.parseInt(lines[3]),
+                    Integer.parseInt(lines[4]),
+                    Double.parseDouble(lines[5])));
         }
-        for (Data seed : seeds) {
-
-        }
-        seeds.sort(Comparator.comparingDouble(Data::getDistance));
+        seeds.sort(Comparator.comparingDouble(Data::getDistanceToSpawn));
         for (int i = 0; i < 10000; i++) {
             System.out.println(seeds.get(i));
         }
